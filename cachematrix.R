@@ -2,40 +2,44 @@
 
 ## This function creates a kind of matrix object that can cache its inverse.
 
-createCacheMatrix <- function(inputMatrix = matrix()) {
-    cachedInverse <- NULL
+cacheMatrix <- function(initialMatrix = matrix()) {
+    invMatrix <- NULL
     
-    setMatrix <- function(newMatrix) {
-        inputMatrix <<- newMatrix
-        cachedInverse <<- NULL
+    # Function to set the matrix and reset the cached inverse
+    set <- function(matrix) {
+        initialMatrix <<- matrix
+        invMatrix <<- NULL
     }
     
-    getMatrix <- function() inputMatrix
+    # Function to get the matrix
+    get <- function() initialMatrix
     
-    setInverse <- function(inverse) cachedInverse <<- inverse
+    # Function to set the cached inverse
+    setInverse <- function(inverse) invMatrix <<- inverse
     
-    getInverse <- function() cachedInverse
+    # Function to get the cached inverse
+    getInverse <- function() invMatrix
     
-    list(setMatrix = setMatrix, getMatrix = getMatrix, 
-         setInverse = setInverse, getInverse = getInverse)
+    list(set = set, get = get, setInverse = setInverse, getInverse = getInverse)
 }
-
 
 ## This function computes the inverse of the matrix
 ## returned by the above method makeCacheMatrix. If the inverse has 
 ## been calculated already without the change in matrix, then the 
 ## method below cachesolve should get the inverse from the cache memory.
 
-computeCachedInverse <- function(cacheMatrix, ...) {
-    cachedInverse <- cacheMatrix$getInverse()
+computeInverse <- function(matrixObject, ...) {
+    invMatrix <- matrixObject$getInverse()
     
-    if (!is.null(cachedInverse)) {
-        message("Fetching cached inverse")
-        return(cachedInverse)
+    # Check if the inverse is already cached
+    if (!is.null(invMatrix)) {
+        message("Using cached inverse")
+        return(invMatrix)
     }
     
-    matrixData <- cacheMatrix$getMatrix()
-    inverseResult <- solve(matrixData, ...)
-    cacheMatrix$setInverse(inverseResult)
-    inverseResult
+    # Compute the inverse, cache it, and return it
+    dataMatrix <- matrixObject$get()
+    invMatrix <- solve(dataMatrix, ...)
+    matrixObject$setInverse(invMatrix)
+    invMatrix
 }
